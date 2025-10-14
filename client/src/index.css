@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 240 10% 98%;
+    --foreground: 240 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    /* Vibrant gradient-ready primary */
+    --primary: 250 95% 63%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 260 90% 70%;
+
+    /* Subtle secondary */
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 10%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    /* Electric accent for blockchain */
+    --accent: 280 90% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 250 95% 63%;
+
+    --radius: 1rem;
+
+    /* Status colors */
+    --success: 142 76% 45%;
+    --warning: 38 92% 50%;
+    --info: 210 100% 56%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 10% 10%;
+    --sidebar-primary: 250 95% 63%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 10% 10%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 250 95% 63%;
+  }
+
+  .dark {
+    --background: 240 10% 8%;
+    --foreground: 240 10% 98%;
+
+    --card: 240 8% 12%;
+    --card-foreground: 240 10% 98%;
+
+    --popover: 240 8% 12%;
+    --popover-foreground: 240 10% 98%;
+
+    --primary: 250 95% 63%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 260 90% 70%;
+
+    --secondary: 240 8% 16%;
+    --secondary-foreground: 240 10% 98%;
+
+    --muted: 240 8% 16%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 280 90% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 8% 20%;
+    --input: 240 8% 20%;
+    --ring: 250 95% 63%;
+
+    --success: 142 76% 45%;
+    --warning: 38 92% 50%;
+    --info: 210 100% 56%;
+
+    --sidebar-background: 240 8% 12%;
+    --sidebar-foreground: 240 10% 98%;
+    --sidebar-primary: 250 95% 63%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 8% 16%;
+    --sidebar-accent-foreground: 240 10% 98%;
+    --sidebar-border: 240 8% 20%;
+    --sidebar-ring: 250 95% 63%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg;
+  }
+  
+  .glass-dark {
+    @apply dark:bg-white/5 dark:backdrop-blur-xl dark:border-white/10;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary via-primary to-primary-glow;
+  }
+
+  .gradient-accent {
+    @apply bg-gradient-to-br from-accent via-purple-500 to-primary;
+  }
+
+  .animate-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
