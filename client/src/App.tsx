@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import Homepage from "./pages/Homepage"; 
 import Dashboard from "./pages/Dashboard";
 import Submissions from "./pages/Submissions";
 import Reviews from "./pages/Reviews";
@@ -18,16 +19,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/submissions" element={<Submissions />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/certificates" element={<Certificates />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          
+          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/submissions" element={<Layout><Submissions /></Layout>} />
+          <Route path="/reviews" element={<Layout><Reviews /></Layout>} />
+          <Route path="/certificates" element={<Layout><Certificates /></Layout>} />
+          
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
