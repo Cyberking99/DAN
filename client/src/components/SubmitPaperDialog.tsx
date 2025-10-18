@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, FileText, Code, Database } from "lucide-react";
 import { toast } from "sonner";
+import { useSubmitPaper } from "@/hooks/useApi";
 
 interface SubmitPaperDialogProps {
   open: boolean;
@@ -19,20 +20,43 @@ interface SubmitPaperDialogProps {
 }
 
 export function SubmitPaperDialog({ open, onOpenChange }: SubmitPaperDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    author: '',
+    abstract: '',
+    file: null as File | null
+  });
+  
+  const submitPaperMutation = useSubmitPaper();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    
+    if (!formData.file) {
+      toast.error("Please select a PDF file to upload");
+      return;
+    }
 
-    // Simulate submission
-    setTimeout(() => {
-      toast.success("Paper submitted successfully!", {
-        description: "Your submission is being uploaded to IPFS and will be reviewed by our AI agents.",
-      });
-      setIsSubmitting(false);
+    const data = new FormData();
+    data.append('title', formData.title);
+    data.append('author', formData.author);
+    data.append('abstract', formData.abstract);
+    data.append('file', formData.file);
+
+    try {
+      await submitPaperMutation.mutateAsync(data);
+      setFormData({ title: '', author: '', abstract: '', file: null });
       onOpenChange(false);
-    }, 2000);
+    } catch (error) {
+      // Error handling is done in the mutation
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, file }));
+    }
   };
 
   return (
@@ -51,15 +75,19 @@ export function SubmitPaperDialog({ open, onOpenChange }: SubmitPaperDialogProps
             <Input
               id="title"
               placeholder="Enter your research title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="authors">Authors *</Label>
+            <Label htmlFor="author">Authors *</Label>
             <Input
-              id="authors"
+              id="author"
               placeholder="Dr. Jane Smith, Prof. John Doe"
+              value={formData.author}
+              onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
               required
             />
           </div>
@@ -70,16 +98,23 @@ export function SubmitPaperDialog({ open, onOpenChange }: SubmitPaperDialogProps
               id="abstract"
               placeholder="Provide a brief summary of your research..."
               className="min-h-[100px]"
+              value={formData.abstract}
+              onChange={(e) => setFormData(prev => ({ ...prev, abstract: e.target.value }))}
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="paper">Paper PDF *</Label>
-            <div className="border-2 border-dashed border-border rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer">
+            <div 
+              className="border-2 border-dashed border-border rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer"
+              onClick={() => document.getElementById('paper')?.click()}
+            >
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <FileText className="h-8 w-8" />
-                <span className="text-sm">Click to upload or drag and drop</span>
+                <span className="text-sm">
+                  {formData.file ? formData.file.name : 'Click to upload or drag and drop'}
+                </span>
                 <span className="text-xs">PDF (max. 50MB)</span>
               </div>
               <Input
@@ -87,6 +122,7 @@ export function SubmitPaperDialog({ open, onOpenChange }: SubmitPaperDialogProps
                 type="file"
                 accept=".pdf"
                 className="hidden"
+                onChange={handleFileChange}
                 required
               />
             </div>
@@ -125,10 +161,10 @@ export function SubmitPaperDialog({ open, onOpenChange }: SubmitPaperDialogProps
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={submitPaperMutation.isPending}
               className="flex-1"
             >
-              {isSubmitting ? (
+              {submitPaperMutation.isPending ? (
                 "Submitting..."
               ) : (
                 <>

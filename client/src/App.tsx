@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import Homepage from "./pages/Homepage"; 
 import Dashboard from "./pages/Dashboard";
 import Submissions from "./pages/Submissions";
@@ -16,21 +18,39 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/submissions" element={<Layout><Submissions /></Layout>} />
-          <Route path="/reviews" element={<Layout><Reviews /></Layout>} />
-          <Route path="/certificates" element={<Layout><Certificates /></Layout>} />
-          
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Layout><Dashboard /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/submissions" element={
+              <ProtectedRoute>
+                <Layout><Submissions /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/reviews" element={
+              <ProtectedRoute>
+                <Layout><Reviews /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/certificates" element={
+              <ProtectedRoute>
+                <Layout><Certificates /></Layout>
+              </ProtectedRoute>
+            } />
+            
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

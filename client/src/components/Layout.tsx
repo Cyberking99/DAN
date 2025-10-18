@@ -6,23 +6,27 @@ import {
   BookOpen, 
   Award,
   User,
-  Wallet
+  Wallet,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const navItems = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard },
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "Submissions", path: "/submissions", icon: FileText },
   { name: "Reviews", path: "/reviews", icon: BookOpen },
   { name: "Certificates", path: "/certificates", icon: Award },
 ];
 
 export function Layout({ children }: LayoutProps) {
+  const { isAuthenticated, user, signOut } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -33,13 +37,35 @@ export function Layout({ children }: LayoutProps) {
           </h1>
           
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 transition-all">
-              <User className="h-5 w-5" />
-            </Button>
-            <Button className="gap-2 gradient-primary hover:shadow-lg hover:shadow-primary/25 transition-all">
-              <Wallet className="h-4 w-4" />
-              Connect Wallet
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20">
+                  <div className="p-1 rounded-full bg-primary/20">
+                    <Wallet className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground">Connected</span>
+                    <span className="text-sm font-mono font-medium">
+                      {user?.address ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}` : 'Wallet'}
+                    </span>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={signOut}
+                  className="gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Disconnect
+                </Button>
+              </>
+            ) : (
+              <Button className="gap-2 gradient-primary hover:shadow-lg hover:shadow-primary/25 transition-all">
+                <Wallet className="h-4 w-4" />
+                Connect Wallet
+              </Button>
+            )}
           </div>
         </div>
       </header>

@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { ChevronDown, FileText, Users, Globe, CheckCircle, Award, Sparkles, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Footer from '@/components/ui/Footer';
 import Navbar from '@/components/ui/Navbar';
+import { WalletConnectButton } from '@/components/WalletConnectButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Homepage = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -72,13 +76,20 @@ const Homepage = () => {
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
               Our autonomous AI agent network evaluates research quality, verifies reproducibility, and mints on-chain certificates—bringing transparency and trust to scientific research.
             </p>
-            <Button 
-              onClick={() => window.location.href = '/dashboard'}
-              className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-full"
-            >
-              Get Started
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            {isAuthenticated ? (
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-full inline-flex items-center"
+              >
+                Go to Dashboard
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </button>
+            ) : (
+              <WalletConnectButton 
+                className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-full"
+                size="lg"
+              />
+            )}
           </div>
 
           {/* Hero Image */}
@@ -243,13 +254,20 @@ const Homepage = () => {
               </h2>
               <p className="text-gray-600">Submit your paper and receive blockchain-backed certification</p>
             </div>
-            <Button 
-              onClick={() => window.location.href = '/dashboard'}
-              className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-full"
-            >
-              Get Started - Free Trial
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            {isAuthenticated ? (
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-full inline-flex items-center"
+              >
+                Go to Dashboard
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </button>
+            ) : (
+              <WalletConnectButton 
+                className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-full"
+                size="lg"
+              />
+            )}
           </div>
         </div>
       </section>

@@ -2,58 +2,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { BookOpen, TrendingUp, CheckCircle, AlertCircle } from "lucide-react";
+import { BookOpen, TrendingUp, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useReviews } from "@/hooks/useApi";
 
-const mockReviews = [
-  {
-    id: 1,
-    title: "CRISPR Gene Editing Techniques",
-    score: 88,
-    methodology: 90,
-    novelty: 85,
-    clarity: 89,
-    reproducibility: 87,
-    summary: "Comprehensive methodology with reproducible results. Strong statistical analysis and clear documentation.",
-    agentReviewer: "ReviewerAgent-001",
-    timestamp: "2025-10-05 14:32",
-  },
-  {
-    id: 2,
-    title: "Neural Network Architecture Optimization",
-    score: 94,
-    methodology: 95,
-    novelty: 92,
-    clarity: 94,
-    reproducibility: 95,
-    summary: "Innovative approach with excellent reproducibility. Code and datasets well documented. Minor improvements needed in literature review.",
-    agentReviewer: "ReviewerAgent-003",
-    timestamp: "2025-10-03 09:15",
-  },
-  {
-    id: 3,
-    title: "Climate Change Impact on Marine Biodiversity",
-    score: 92,
-    methodology: 91,
-    novelty: 88,
-    clarity: 95,
-    reproducibility: 93,
-    summary: "Outstanding data collection and analysis. Clear methodology and well-structured presentation. Strong evidence supporting conclusions.",
-    agentReviewer: "ReviewerAgent-002",
-    timestamp: "2025-10-08 16:45",
-  },
-  {
-    id: 4,
-    title: "Machine Learning Applications in Drug Discovery",
-    score: 85,
-    methodology: 84,
-    novelty: 82,
-    clarity: 87,
-    reproducibility: 86,
-    summary: "Solid research with practical applications. Some concerns about dataset size and generalizability of results.",
-    agentReviewer: "ReviewerAgent-001",
-    timestamp: "2025-10-10 11:20",
-  },
-];
+// Helper function to format date
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
 const getScoreColor = (score: number) => {
   if (score >= 90) return "text-success";
@@ -63,6 +24,32 @@ const getScoreColor = (score: number) => {
 };
 
 export default function Reviews() {
+  const { data: reviewsData, isLoading, error } = useReviews();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading reviews...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-destructive">Failed to load reviews</p>
+          <p className="text-sm text-muted-foreground mt-2">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, reviews } = reviewsData || {};
+
   return (
     <div className="space-y-6">
       <div>
@@ -80,7 +67,7 @@ export default function Reviews() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">89.75</div>
+            <div className="text-3xl font-display font-bold">{stats?.averageScore?.toFixed(1) || '0.0'}</div>
             <p className="text-xs text-muted-foreground mt-1">Across all reviews</p>
           </CardContent>
         </Card>
@@ -93,7 +80,7 @@ export default function Reviews() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">16</div>
+            <div className="text-3xl font-display font-bold">{stats?.reviewsCompleted || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">By AI agents</p>
           </CardContent>
         </Card>
@@ -106,29 +93,29 @@ export default function Reviews() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">12</div>
-            <p className="text-xs text-muted-foreground mt-1">Score ≥ 85</p>
+            <div className="text-3xl font-display font-bold">{stats?.highQuality || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Score ≥ 80</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Reviews List */}
       <div className="grid gap-6">
-        {mockReviews.map((review) => (
+        {reviews?.length ? reviews.map((review) => (
           <Card key={review.id} className="glass glass-dark border-border/50 hover-lift">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <CardTitle className="text-xl font-display">{review.title}</CardTitle>
+                  <CardTitle className="text-xl font-display">{review.submission?.title || 'Review'}</CardTitle>
                   <CardDescription className="text-sm">
-                    Reviewed by {review.agentReviewer} • {review.timestamp}
+                    Reviewed by {review.ai_agent} • {formatDate(review.dateReviewed)}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Badge className={`text-3xl font-display font-bold px-6 py-2 gradient-primary`}>
                     {review.score}
                   </Badge>
-                  {review.score >= 85 && (
+                  {review.score >= 80 && (
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       High Quality
@@ -138,50 +125,60 @@ export default function Reviews() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-sm text-muted-foreground leading-relaxed">{review.summary}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{review.feedback}</p>
               
               {/* Detailed Scores */}
-              <div className="space-y-4 pt-2">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">Methodology</span>
-                    <span className={`font-display font-bold ${getScoreColor(review.methodology)}`}>
-                      {review.methodology}
-                    </span>
-                  </div>
-                  <Progress value={review.methodology} className="h-2.5" />
-                </div>
+              {(review.methodology || review.novelty || review.clarity || review.reproducibility) && (
+                <div className="space-y-4 pt-2">
+                  {review.methodology && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">Methodology</span>
+                        <span className={`font-display font-bold ${getScoreColor(review.methodology)}`}>
+                          {review.methodology}
+                        </span>
+                      </div>
+                      <Progress value={review.methodology} className="h-2.5" />
+                    </div>
+                  )}
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">Novelty</span>
-                    <span className={`font-display font-bold ${getScoreColor(review.novelty)}`}>
-                      {review.novelty}
-                    </span>
-                  </div>
-                  <Progress value={review.novelty} className="h-2.5" />
-                </div>
+                  {review.novelty && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">Novelty</span>
+                        <span className={`font-display font-bold ${getScoreColor(review.novelty)}`}>
+                          {review.novelty}
+                        </span>
+                      </div>
+                      <Progress value={review.novelty} className="h-2.5" />
+                    </div>
+                  )}
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">Clarity</span>
-                    <span className={`font-display font-bold ${getScoreColor(review.clarity)}`}>
-                      {review.clarity}
-                    </span>
-                  </div>
-                  <Progress value={review.clarity} className="h-2.5" />
-                </div>
+                  {review.clarity && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">Clarity</span>
+                        <span className={`font-display font-bold ${getScoreColor(review.clarity)}`}>
+                          {review.clarity}
+                        </span>
+                      </div>
+                      <Progress value={review.clarity} className="h-2.5" />
+                    </div>
+                  )}
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">Reproducibility</span>
-                    <span className={`font-display font-bold ${getScoreColor(review.reproducibility)}`}>
-                      {review.reproducibility}
-                    </span>
-                  </div>
-                  <Progress value={review.reproducibility} className="h-2.5" />
+                  {review.reproducibility && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">Reproducibility</span>
+                        <span className={`font-display font-bold ${getScoreColor(review.reproducibility)}`}>
+                          {review.reproducibility}
+                        </span>
+                      </div>
+                      <Progress value={review.reproducibility} className="h-2.5" />
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               <div className="flex justify-end pt-2">
                 <Button variant="outline" size="sm" className="hover:bg-primary/10 transition-all">
@@ -190,7 +187,17 @@ export default function Reviews() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )) : (
+          <div className="text-center py-12">
+            <div className="p-4 rounded-full bg-primary/10 w-fit mx-auto mb-4">
+              <BookOpen className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No reviews yet</h3>
+            <p className="text-muted-foreground">
+              Submit papers to see AI-powered reviews and detailed analysis.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

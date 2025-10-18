@@ -3,69 +3,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, FileText, ExternalLink } from "lucide-react";
+import { Search, FileText, ExternalLink, Loader2 } from "lucide-react";
 import { SubmitPaperDialog } from "@/components/SubmitPaperDialog";
+import { useSubmissions } from "@/hooks/useApi";
 
-const mockSubmissions = [
-  {
-    id: 1,
-    title: "Novel Approach to Quantum Computing Error Correction",
-    status: "pending",
-    score: null,
-    date: "2025-10-12",
-    authors: "Dr. Jane Smith, Dr. Robert Chen",
-    ipfsCID: "Qm...",
-    description: "This paper presents a novel error correction algorithm for quantum computers.",
-  },
-  {
-    id: 2,
-    title: "Machine Learning Applications in Drug Discovery",
-    status: "reviewing",
-    score: 85,
-    date: "2025-10-10",
-    authors: "Prof. Michael Johnson",
-    ipfsCID: "Qm...",
-    description: "Exploring deep learning methods for predicting drug efficacy and interactions.",
-  },
-  {
-    id: 3,
-    title: "Climate Change Impact on Marine Biodiversity",
-    status: "completed",
-    score: 92,
-    date: "2025-10-08",
-    authors: "Dr. Sarah Williams, Dr. James Brown",
-    ipfsCID: "Qm...",
-    description: "Comprehensive analysis of climate effects on ocean ecosystems over the past decade.",
-  },
-  {
-    id: 4,
-    title: "CRISPR Gene Editing Techniques",
-    status: "completed",
-    score: 88,
-    date: "2025-10-05",
-    authors: "Dr. Emily Davis",
-    ipfsCID: "Qm...",
-    description: "Advanced CRISPR methodologies for precise genetic modifications.",
-  },
-  {
-    id: 5,
-    title: "Neural Network Architecture Optimization",
-    status: "completed",
-    score: 94,
-    date: "2025-10-03",
-    authors: "Dr. Alex Turner, Dr. Maria Garcia",
-    ipfsCID: "Qm...",
-    description: "Novel approaches to optimizing neural network architectures for efficiency.",
-  },
-];
+// Helper function to format date
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
 
 const getStatusBadge = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "pending":
-      return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">Pending</Badge>;
-    case "reviewing":
-      return <Badge variant="outline" className="bg-info/10 text-info border-info/20">Reviewing</Badge>;
+    case "under review":
+      return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">Under Review</Badge>;
     case "completed":
+    case "certified":
       return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Completed</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
@@ -75,12 +32,35 @@ const getStatusBadge = (status: string) => {
 export default function Submissions() {
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: submissions, isLoading, error } = useSubmissions();
 
-  const filteredSubmissions = mockSubmissions.filter(
+  const filteredSubmissions = submissions?.filter(
     (sub) =>
       sub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sub.authors.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      sub.author.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading submissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-destructive">Failed to load submissions</p>
+          <p className="text-sm text-muted-foreground mt-2">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -107,7 +87,7 @@ export default function Submissions() {
 
       {/* Submissions List */}
       <div className="grid gap-4">
-        {filteredSubmissions.map((submission) => (
+        {filteredSubmissions.length > 0 ? filteredSubmissions.map((submission) => (
           <Card key={submission.id} className="glass glass-dark border-border/50 hover-lift">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -118,7 +98,7 @@ export default function Submissions() {
                     </div>
                     <CardTitle className="text-xl font-display">{submission.title}</CardTitle>
                   </div>
-                  <CardDescription className="text-sm">{submission.authors}</CardDescription>
+                  <CardDescription className="text-sm">{submission.author}</CardDescription>
                 </div>
                 <div className="flex items-center gap-3">
                   {getStatusBadge(submission.status)}
@@ -131,11 +111,11 @@ export default function Submissions() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">{submission.description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{submission.abstract}</p>
               <div className="flex items-center justify-between pt-3 border-t border-border/50">
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>Submitted: {submission.date}</span>
-                  <span className="font-mono text-xs">IPFS: {submission.ipfsCID}</span>
+                  <span>Submitted: {formatDate(submission.dateSubmitted)}</span>
+                  <span className="font-mono text-xs">IPFS: {submission.ipfs_cid}</span>
                 </div>
                 <Button variant="ghost" size="sm" className="gap-2 hover:bg-primary/10 transition-all">
                   View Details
@@ -144,7 +124,22 @@ export default function Submissions() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )) : (
+          <div className="text-center py-12">
+            <div className="p-4 rounded-full bg-primary/10 w-fit mx-auto mb-4">
+              <FileText className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No submissions found</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchQuery ? 'No submissions match your search criteria.' : "You haven't submitted any papers yet."}
+            </p>
+            {!searchQuery && (
+              <Button onClick={() => setIsSubmitDialogOpen(true)} className="gradient-primary hover:shadow-lg hover:shadow-primary/25 transition-all">
+                Submit Your First Paper
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       <SubmitPaperDialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen} />

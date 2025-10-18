@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { FileText, ArrowRight, Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button"; // adjust import path if your Button is elsewhere
+import { FileText, ArrowRight, Menu, X, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { WalletConnectButton } from "@/components/WalletConnectButton";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -35,13 +40,37 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Button */}
           <div className="hidden md:block">
-            <Button
-              onClick={() => (window.location.href = "/dashboard")}
-              className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6"
-            >
-              Launch App
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-100 border border-gray-200">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-mono text-gray-700">
+                    {user?.address ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}` : 'Connected'}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => navigate("/dashboard")}
+                  className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6"
+                >
+                  Dashboard
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={signOut}
+                  className="gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <WalletConnectButton 
+                className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6"
+                size="default"
+              />
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -89,16 +118,42 @@ const Navbar: React.FC = () => {
               FAQ
             </a>
 
-            <Button
-              onClick={() => {
-                setIsOpen(false);
-                window.location.href = "/dashboard";
-              }}
-              className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6 w-full"
-            >
-              Launch App
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            {isAuthenticated ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-gray-100 border border-gray-200">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-mono text-gray-700">
+                    {user?.address ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}` : 'Connected'}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate("/dashboard");
+                  }}
+                  className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6 w-full"
+                >
+                  Dashboard
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsOpen(false);
+                    signOut();
+                  }}
+                  className="gap-2 w-full hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <WalletConnectButton 
+                className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6 w-full"
+                size="default"
+              />
+            )}
           </div>
         </div>
       )}

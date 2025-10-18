@@ -1,56 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, CheckCircle, Clock, Award } from "lucide-react";
+import { FileText, CheckCircle, Clock, Award, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { SubmitPaperDialog } from "@/components/SubmitPaperDialog";
+import { useDashboard } from "@/hooks/useApi";
 
-const mockSubmissions = [
-  {
-    id: 1,
-    title: "Novel Approach to Quantum Computing Error Correction",
-    status: "pending",
-    score: null,
-    date: "2025-10-12",
-  },
-  {
-    id: 2,
-    title: "Machine Learning Applications in Drug Discovery",
-    status: "reviewing",
-    score: 85,
-    date: "2025-10-10",
-  },
-  {
-    id: 3,
-    title: "Climate Change Impact on Marine Biodiversity",
-    status: "completed",
-    score: 92,
-    date: "2025-10-08",
-  },
-];
-
-const mockReviews = [
-  {
-    id: 1,
-    title: "CRISPR Gene Editing Techniques",
-    score: 88,
-    summary: "Comprehensive methodology with reproducible results. Strong statistical analysis.",
-  },
-  {
-    id: 2,
-    title: "Neural Network Architecture Optimization",
-    score: 94,
-    summary: "Innovative approach with excellent reproducibility. Code and datasets well documented.",
-  },
-];
+// Helper function to format date
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
 
 const getStatusBadge = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "pending":
-      return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">Pending</Badge>;
-    case "reviewing":
-      return <Badge variant="outline" className="bg-info/10 text-info border-info/20">Reviewing</Badge>;
+    case "under review":
+      return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">Under Review</Badge>;
     case "completed":
+    case "certified":
       return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Completed</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
@@ -59,6 +30,31 @@ const getStatusBadge = (status: string) => {
 
 export default function Dashboard() {
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
+  const { data: dashboardData, isLoading, error } = useDashboard();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-destructive">Failed to load dashboard data</p>
+          <p className="text-sm text-muted-foreground mt-2">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, recentSubmissions, recentReviews } = dashboardData || {};
 
   return (
     <div className="space-y-8">
@@ -82,8 +78,8 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">24</div>
-            <p className="text-xs text-muted-foreground mt-1">+3 from last month</p>
+            <div className="text-3xl font-display font-bold">{stats?.totalSubmissions || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total submissions</p>
           </CardContent>
         </Card>
 
@@ -95,7 +91,7 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">8</div>
+            <div className="text-3xl font-display font-bold">{stats?.underReview || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">AI agents processing</p>
           </CardContent>
         </Card>
@@ -108,8 +104,8 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">16</div>
-            <p className="text-xs text-muted-foreground mt-1">Average score: 87</p>
+            <div className="text-3xl font-display font-bold">{stats?.completed || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">Successfully reviewed</p>
           </CardContent>
         </Card>
 
@@ -121,7 +117,7 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-display font-bold">12</div>
+            <div className="text-3xl font-display font-bold">{stats?.certificates || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">NFTs minted</p>
           </CardContent>
         </Card>
@@ -140,7 +136,7 @@ export default function Dashboard() {
               <div className="col-span-2">Score</div>
               <div className="col-span-2">Date</div>
             </div>
-            {mockSubmissions.map((submission) => (
+            {recentSubmissions?.length ? recentSubmissions.map((submission) => (
               <div key={submission.id} className="grid grid-cols-12 gap-4 items-center py-3 border-b border-border/50 last:border-0 hover:bg-primary/5 rounded-lg px-2 -mx-2 transition-all">
                 <div className="col-span-5 font-medium">{submission.title}</div>
                 <div className="col-span-3">{getStatusBadge(submission.status)}</div>
@@ -151,9 +147,13 @@ export default function Dashboard() {
                     <span className="text-muted-foreground">—</span>
                   )}
                 </div>
-                <div className="col-span-2 text-muted-foreground text-sm">{submission.date}</div>
+                <div className="col-span-2 text-muted-foreground text-sm">{formatDate(submission.dateSubmitted)}</div>
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No submissions yet. Submit your first paper to get started!
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -162,20 +162,24 @@ export default function Dashboard() {
       <div>
         <h3 className="text-2xl font-display font-bold tracking-tight mb-4">Recent Reviews</h3>
         <div className="grid gap-4 md:grid-cols-2">
-          {mockReviews.map((review) => (
+          {recentReviews?.length ? recentReviews.map((review) => (
             <Card key={review.id} className="glass glass-dark border-border/50 hover-lift">
               <CardHeader>
-                <CardTitle className="text-lg font-display">{review.title}</CardTitle>
+                <CardTitle className="text-lg font-display">{review.submission?.title || 'Review'}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground leading-relaxed">{review.summary}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{review.feedback}</p>
                 <div className="flex items-center gap-2 pt-2">
                   <span className="text-sm font-medium">Score:</span>
                   <Badge className="gradient-primary font-display font-bold text-base px-3 py-1">{review.score}</Badge>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )) : (
+            <div className="col-span-2 text-center py-8 text-muted-foreground">
+              No reviews yet. Submit papers to see AI-powered reviews!
+            </div>
+          )}
         </div>
       </div>
 
