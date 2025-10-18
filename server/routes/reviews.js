@@ -4,8 +4,10 @@ import { PrismaClient } from '../generated/prisma/index.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/:userId", async (req, res) => {
-  const { userId } = req.params;
+router.get("/", async (req, res) => {
+  
+  const userId = req.user.userId;
+  
   try {
     const reviews = await prisma.review.findMany({
       where: { submission: { userId } },

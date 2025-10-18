@@ -4,9 +4,10 @@ import { PrismaClient } from '../generated/prisma/index.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/:userId", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { userId } = req.params;
+    
+    const userId = req.user.userId;
 
     // Counts
     const totalSubmissions = await prisma.submission.count({ where: { userId } });
