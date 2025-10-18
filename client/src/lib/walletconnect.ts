@@ -20,8 +20,8 @@ const hardhat = {
 const metadata = {
   name: 'DeSci Agent Network (DAN)',
   description: 'A decentralized science review and certification platform powered by AI and blockchain.',
-  url: 'https://dan-client.vercel.app',
-  icons: ['https://avatars.githubusercontent.com/u/37784886']
+  url: 'https://danapp.vercel.app',
+  icons: ['https://danapp.vercel.app/logo.png']
 }
 
 export const ethersConfig = defaultConfig({
