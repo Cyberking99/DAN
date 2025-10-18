@@ -13,7 +13,7 @@ const hardhat = {
   name: 'Base Sepolia',
   currency: 'ETH',
   explorerUrl: 'https://sepolia.basescan.org',
-  rpcUrl: 'https://base-sepolia.infura.io/v3/f7f8ec54d0cd4d82b7c2b3ecbdeb734a'
+  rpcUrl: import.meta.env.VITE_RPC_URL
 }
 
 // 3. Create modal

@@ -1,4 +1,4 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://dan-xw2i.onrender.com";
+const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 // Types
 export interface User {
