@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Login with Wallet</h1>
+    <button id="connect">Connect Wallet</button>
+
+    <script type="module">
+      import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.7.0/+esm";
+
+      const BACKEND_URL = "https://dan-xw2i.onrender.com";
+
+      async function connectWallet() {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+
+        // Step 1: Get nonce
+        const nonceRes = await fetch(`${BACKEND_URL}/auth/nonce/${address}`);
+        const { nonce } = await nonceRes.json();
+
+        // Step 2: Sign message
+        const signature = await signer.signMessage(`Login nonce: ${nonce}`);
+
+        console.log(signature)
+
+        // Step 3: Verify and get token
+        const verifyRes = await fetch(`${BACKEND_URL}/auth/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, signature }),
+        });
+        const data = await verifyRes.json();
+        console.log("Authenticated:", data);
+        localStorage.setItem("uploadjwt", data.token);
+      }
+
+      document.getElementById("connect").onclick = connectWallet;
+    </script>
+  </body>
+</html>

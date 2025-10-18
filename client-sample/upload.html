@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Submit Paper</title>
+</head>
+
+<body>
+    <h2>Upload Paper to IPFS</h2>
+    <form id="uploadForm">
+        <input type="text" name="title" placeholder="Title" required><br>
+        <input type="text" name="author" placeholder="Author" required><br>
+        <input type="file" name="file" required><br>
+        <button type="submit">Submit</button>
+    </form>
+    <p id="result"></p>
+
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("uploadjwt");
+            const formData = new FormData(e.target);
+            const res = await fetch('https://dan-xw2i.onrender.com/upload/upload', {
+                headers: { Authorization: `Bearer ${token}` },
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            console.log(data)
+            document.getElementById('result').innerText = `Uploaded! CID: ${data.ipfs_cid}`;
+        });
+    </script>
+</body>
+
+</html>
