@@ -1,4 +1,5 @@
-import axios from "axios";
+// import axios from "axios";
+import axios from "axios/dist/node/axios.cjs";
 import fs from "fs";
 import dotenv from "dotenv";
 import FormData from "form-data";
