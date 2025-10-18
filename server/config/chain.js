@@ -12,7 +12,7 @@ export async function mintCertificate(to, uri) {
     console.log(`[CHAIN] Loading contract from ${process.env.CONTRACT_ADDRESS}`);
     const contractJSON = JSON.parse(fs.readFileSync(process.env.CONTRACT_ABI_PATH));
     const contractABI = fs.readFileSync(process.env.CONTRACT_ABI_PATH);
-    const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractABI, wallet);
+    const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractJSON.abi, wallet);
 
     console.log(`[CHAIN] Minting certificate for ${to} with URI ${uri}`);
     const tx = await contract.mintCertificate(to, uri);
