@@ -1,0 +1,49 @@
+{
+  "title": "Test",
+  "author": "KC",
+  "ipfs_cid": "QmS7dxuKEyHaDxNBkr43BfGwkkAgGEakNu4qHM4otkv7zz",
+  "review": {
+    "score": 4,
+    "summary": "The provided excerpt is a candidate profile for a software engineer, which outlines educational experience, work history, and technical skills. The profile needs significant improvements in clarity, formatting, and error correction for better professionalism and readability.",
+    "feedback": {
+      "generalComments": [
+        "The candidate presents a decent background and relevant experience in software engineering.",
+        "The overall structure is similar to a résumé, but it lacks the necessary clarity and proper formatting.",
+        "There are evident typographical errors and inconsistencies in dates and descriptions."
+      ],
+      "specificIssues": [
+        {
+          "issue": "Inconsistent Date Formats",
+          "description": "The years listed for work experience use different formats (e.g., 20217 – 2018 and 2020 – 2025). This could confuse potential employers."
+        },
+        {
+          "issue": "Formatting",
+          "description": "The contact information and sections lack clear borders or spacing, making it difficult to read. Bullet points are inconsistent."
+        },
+        {
+          "issue": "Incomplete Content",
+          "description": "The work experience section is cut off in the last entry for STIM APP – backend engineer. This suggests an incomplete submission."
+        },
+        {
+          "issue": "Language and Clarity",
+          "description": "Some sentences are verbose and could be more concise. For example, 'I develop web applications to interface with the WordPress site.' could be shortened to 'Developed web apps for WordPress integration.'"
+        },
+        {
+          "issue": "Skill Representation",
+          "description": "Listing programming languages is good, but it would be beneficial to highlight specific projects or achievements associated with each language."
+        },
+        {
+          "issue": "Unclear Role Descriptions",
+          "description": "Some roles lack specificity and achievements, such as the statement 'I oversee the development and dissemination of technology for any project.' which could elaborate on specific technologies overseen."
+        }
+      ],
+      "recommendations": [
+        "Revise the document to ensure consistent formatting and clarity.",
+        "Double-check dates for consistency and correctness.",
+        "Provide quantifiable achievements or specific project outcomes under each role.",
+        "Complete the STIM APP entry and revise entries for clarity and conciseness.",
+        "Consider utilizing professional résumé formats or templates for increased professionalism."
+      ]
+    }
+  }
+}
