@@ -1,5 +1,4 @@
-// import axios from "axios";
-const axios = (await import("axios")).default;
+import axios from "axios";
 import fs from "fs";
 import dotenv from "dotenv";
 import FormData from "form-data";
