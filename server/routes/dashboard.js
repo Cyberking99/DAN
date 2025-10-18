@@ -28,7 +28,13 @@ router.get("/", async (req, res) => {
       where: { submission: { userId } },
       orderBy: { dateReviewed: "desc" },
       take: 5,
-      select: { title: false, submission: { select: { title: true } }, abstract: true, score: true }
+      select: {
+        submission: { select: { title: true } },
+        abstract: true,
+        score: true,
+        ai_agent: true,
+        dateReviewed: true,
+      },
     });
 
     res.json({
