@@ -128,28 +128,6 @@ export function SubmitPaperDialog({ open, onOpenChange }: SubmitPaperDialogProps
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="code">Code Repository (optional)</Label>
-            <div className="flex gap-2">
-              <div className="flex-1 border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Code className="h-5 w-5" />
-                  <span className="text-sm">Upload code or provide GitHub URL</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="dataset">Dataset (optional)</Label>
-            <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Database className="h-5 w-5" />
-                <span className="text-sm">Upload dataset or provide link</span>
-              </div>
-            </div>
-          </div>
-
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
