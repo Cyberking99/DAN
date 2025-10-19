@@ -38,13 +38,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isAuthenticated = !!token && !!user;
 
-  // Check for existing token on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('uploadjwt');
+    const storedUser = localStorage.getItem('uploaduser');
     if (storedToken) {
       setToken(storedToken);
-      // You might want to verify the token with the backend here
     }
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    console.log('AuthProvider mounted, token:', storedToken, 'user:', storedUser);
   }, []);
 
   const connectWallet = async () => {
@@ -95,6 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Store token and user data
       localStorage.setItem('uploadjwt', data.token);
+      localStorage.setItem('uploaduser', JSON.stringify(data.user));
       setToken(data.token);
       setUser(data.user);
       

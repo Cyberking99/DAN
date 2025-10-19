@@ -13,6 +13,78 @@ const formatDate = (dateString: string) => {
   });
 };
 
+// Resolve ipfs:// URIs to a gateway and fallback to raw URL
+const resolveIpfs = (uri?: string) => {
+  if (!uri) return '';
+  if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.replace('ipfs://', '')}`;
+  return uri;
+};
+
+interface Certificate {
+  id: number;
+  tokenUri: string;
+  txHash: string;
+  dateMinted: string;
+  submission?: {
+    title: string;
+  };
+}
+
+const openNFT = async (cert: Certificate) => {
+  try {
+    const metadataUrl = resolveIpfs(cert.tokenUri);
+    const res = await fetch(metadataUrl);
+    if (!res.ok) {
+      window.open(metadataUrl, '_blank');
+      return;
+    }
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json') || metadataUrl.endsWith('.json')) {
+      const meta = await res.json();
+      const media = resolveIpfs(meta.image || meta.image_url || meta.animation_url || '');
+      window.open(media || metadataUrl, '_blank');
+    } else {
+      window.open(metadataUrl, '_blank');
+    }
+  } catch (err) {
+    console.error(err);
+    window.open(resolveIpfs(cert.tokenUri), '_blank');
+  }
+};
+
+const downloadNFT = async (cert: Certificate) => {
+  try {
+    const metadataUrl = resolveIpfs(cert.tokenUri);
+    const res = await fetch(metadataUrl);
+    const contentType = res.headers.get('content-type') || '';
+    let fileUrl = metadataUrl;
+    let filename = `nft-${cert.id}`;
+
+    if (contentType.includes('application/json')) {
+      const meta = await res.json();
+      fileUrl = resolveIpfs(meta.image || meta.image_url || meta.animation_url || '');
+      filename += `.${(fileUrl.split('.').pop() || 'png').split('?')[0]}`;
+    } else {
+      filename += `.${(metadataUrl.split('.').pop() || 'bin').split('?')[0]}`;
+    }
+
+    if (!fileUrl) throw new Error('No media URL found in metadata');
+
+    const fileRes = await fetch(fileUrl);
+    const blob = await fileRes.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  } catch (err) {
+    console.error(err);
+    alert('Failed to download NFT asset');
+  }
+};
+
 export default function Certificates() {
   const { data: certificates, isLoading, error } = useCertificates();
 
@@ -107,11 +179,11 @@ export default function Certificates() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1 hover:bg-primary/10 transition-all">
+                <Button variant="outline" size="sm" className="flex-1 hover:bg-primary/10 transition-all" onClick={() => downloadNFT(cert)}>
                   <Download className="h-3 w-3 mr-1" />
                   Download
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 hover:bg-accent/10 transition-all">
+                <Button variant="outline" size="sm" className="flex-1 hover:bg-accent/10 transition-all" onClick={() => openNFT(cert)}>
                   <ExternalLink className="h-3 w-3 mr-1" />
                   View NFT
                 </Button>

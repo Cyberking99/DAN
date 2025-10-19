@@ -26,6 +26,8 @@ const getScoreColor = (score: number) => {
 export default function Reviews() {
   const { data: reviewsData, isLoading, error } = useReviews();
 
+  console.log('Reviews Data:', reviewsData);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -94,7 +96,7 @@ export default function Reviews() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-display font-bold">{stats?.highQuality || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Score ≥ 80</p>
+            <p className="text-xs text-muted-foreground mt-1">Score &gte; 80</p>
           </CardContent>
         </Card>
       </div>
@@ -125,7 +127,41 @@ export default function Reviews() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-sm text-muted-foreground leading-relaxed">{review.feedback}</p>
+              {/* Feedback Section */}
+<div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+  {review.feedback?.strengths?.length > 0 && (
+    <div>
+      <h4 className="font-medium text-foreground mb-1">Strengths</h4>
+      <ul className="list-disc list-inside space-y-1">
+        {review.feedback.strengths.map((item: string, i: number) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {review.feedback?.weaknesses?.length > 0 && (
+    <div>
+      <h4 className="font-medium text-foreground mb-1">Weaknesses</h4>
+      <ul className="list-disc list-inside space-y-1">
+        {review.feedback.weaknesses.map((item: string, i: number) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {review.feedback?.recommendations?.length > 0 && (
+    <div>
+      <h4 className="font-medium text-foreground mb-1">Recommendations</h4>
+      <ul className="list-disc list-inside space-y-1">
+        {review.feedback.recommendations.map((item: string, i: number) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
               
               {/* Detailed Scores */}
               {(review.methodology || review.novelty || review.clarity || review.reproducibility) && (

@@ -18,6 +18,12 @@ export interface Submission {
   userId: string;
 }
 
+export interface ReviewFeedback {
+  strengths?: string[];
+  weaknesses?: string[];
+  recommendations?: string[];
+}
+
 export interface Review {
   id: number;
   submissionId: number;
@@ -28,7 +34,7 @@ export interface Review {
   novelty?: number;
   clarity?: number;
   reproducibility?: number;
-  feedback: string;
+  feedback: ReviewFeedback;
   dateReviewed: string;
   submission?: {
     title: string;
